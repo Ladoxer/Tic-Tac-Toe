@@ -19,6 +19,7 @@ export interface StoredScores {
  * Save scores to localStorage
  */
 export function saveScores(scores: StoredScores): void {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(SCORES_KEY, JSON.stringify(scores));
   } catch (error) {
@@ -30,6 +31,9 @@ export function saveScores(scores: StoredScores): void {
  * Load scores from localStorage
  */
 export function loadScores(): StoredScores {
+  if (typeof window === 'undefined') {
+    return { X: 0, O: 0, draws: 0 };
+  }
   try {
     const stored = localStorage.getItem(SCORES_KEY);
     if (stored) {
@@ -54,6 +58,7 @@ export function resetScores(): void {
  * Save settings to localStorage
  */
 export function saveSettings(settings: GameSettings): void {
+  if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   } catch (error) {
@@ -65,9 +70,16 @@ export function saveSettings(settings: GameSettings): void {
  * Load settings from localStorage
  */
 export function loadSettings(): GameSettings {
+  if (typeof window === 'undefined') {
+    return {
+      soundEnabled: true,
+      theme: 'system',
+      difficulty: 'hard',
+    };
+  }
   try {
     const stored = localStorage.getItem(SETTINGS_KEY);
-    if (stored) {
+   if (stored) {
       return JSON.parse(stored);
     }
   } catch (error) {
@@ -78,6 +90,6 @@ export function loadSettings(): GameSettings {
   return {
     soundEnabled: true,
     theme: 'system',
-    difficulty: 'impossible',
+    difficulty: 'hard',
   };
 }

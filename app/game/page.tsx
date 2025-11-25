@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { useGame } from '@/hooks/useGame';
@@ -44,7 +44,7 @@ const MOTIVATIONAL_MESSAGES = {
   aiThinking: ['AI is thinking...', 'Calculating move...', 'Analyzing...', 'Processing strategy...'],
 };
 
-export default function GamePage() {
+function GameContent() {
   const searchParams = useSearchParams();
   const mode = (searchParams?.get('mode') || 'pvp') as 'pvp' | 'pvai';
 
@@ -77,7 +77,7 @@ export default function GamePage() {
     if (mode !== gameMode) {
       setGameMode(mode);
     }
-  }, [mode]);
+  }, [mode, gameMode, setGameMode]);
 
   // Update motivational message and avatar emotion
   useEffect(() => {
@@ -220,28 +220,7 @@ export default function GamePage() {
           onCellClick={handleCellClick}
           winningCombination={winningCombination}
           disabled={status !== 'playing' || isAIThinking}
-          currentPlayer={currentPlayer}
         />
-
-        {/* Game Status */}
-        {status !== 'playing' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center mt-6"
-          >
-            {status === 'won' && winner && (
-              <p className="text-2xl font-bold">
-                Player <span className={winner === 'X' ? 'text-cyan-400' : 'text-pink-400'}>{winner}</span> wins! 🎉
-              </p>
-            )}
-            {status === 'draw' && (
-              <p className="text-2xl font-bold text-yellow-400">
-                It&apos;s a draw! 🤝
-              </p>
-            )}
-          </motion.div>
-        )}
 
         {/* Controls */}
         <GameControls
@@ -254,5 +233,17 @@ export default function GamePage() {
         <ProgressTracker scores={scores} gameMode={gameMode} />
       </div>
     </div>
+  );
+}
+
+export default function GamePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-400">Loading game...</div>
+      </div>
+    }>
+      <GameContent />
+    </Suspense>
   );
 }
